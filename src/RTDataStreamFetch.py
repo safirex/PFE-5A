@@ -1,9 +1,11 @@
+from msilib import add_data
 import pandas as pd
 import requests
 from google.transit import gtfs_realtime_pb2
 from protobuf_to_dict import protobuf_to_dict
 
 from db.dbConnection import *
+import gtfs_parser
 
 # import pygtfs
 # sched = pygtfs.Schedule(":memory:")
@@ -25,17 +27,11 @@ for entity in feed.entity:
     if entity.HasField('trip_update'):
         liste.append(str(entity.trip_update))
 
-file = open('gtfs-rt.txt', 'w') #write byte
-# file = open('data.gtfs', 'w') 
+file = open('gtfs-rt.txt', 'w') 
 for line in liste:
     file.write(line)
 file.close()
 
-# print(type(entity.trip_update.trip))
-# print(entity.trip_update.trip)
-
-# print(buses_dict['entity'][0])
-df = pd.DataFrame(buses_dict['entity'][0])
 
 engine,conn = connect(DbTables.Test)
   
@@ -45,15 +41,31 @@ def add_Data(dataframe,engine):
         engine,
         if_exists='append',
         dtype={
-            "id" : Text,
-            "trip_update" : JSON
+            "stop_id" : Text
         }
     )
     engine.execute
 
+liste = []
+for entity in feed.entity:
+    if entity.HasField('trip_update'):
 
-# df.to_sql('trip_update',con=conn)
-# add_Data(df,engine)
+        liste.append(gtfs_parser.parse_entity(entity))
+        # trip,trip_stops = gtfs_parser.parse_entity(entity)
 
+def format_for_sql(gtfsrt_dict):
+    trip_list = []
+    for trip in gtfsrt_dict:
+        infos = trip[:-1][0]
+        trip_stops = trip[-1]
+
+        for i in range (len(trip_stops)):
+            trip_stops[i] = infos + trip_stops[i]
+            trip_list.append(trip_stops[i] )
+    col_names = gtfs_parser.get_entity_column_names()[:-1]+ gtfs_parser.get_stop_column_names()
+    return pd.DataFrame(trip_list,columns=col_names)
+
+df = format_for_sql(liste)
+
+add_Data(df,engine)
 print(df)
-print(df['trip_update']['vehicle']['id'])
