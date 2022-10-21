@@ -8,24 +8,30 @@ from datetime import datetime
 dtype_dict = {}
 dtype_dict[GTFSFilenames.agency]            =  {"agency_id" : VARCHAR(50)}     
 dtype_dict[GTFSFilenames.calendar]          =  {"service_id" :VARCHAR(50), 'start_date' : Date}   
-dtype_dict[GTFSFilenames.calendar_dates]    =  {"service_id" :VARCHAR(50),"date" : Date}
+dtype_dict[GTFSFilenames.calendar_dates]    =  {"service_id" :VARCHAR(50), "date" : Date}
 dtype_dict[GTFSFilenames.routes]            =  {"route_id"  : VARCHAR(20)}      
-dtype_dict[GTFSFilenames.shapes]            =  {"shape_id"  : VARCHAR(20),"shape_pt_sequence": Integer()} 
+dtype_dict[GTFSFilenames.shapes]            =  {"shape_id"  : VARCHAR(20), "shape_pt_sequence": Integer()} 
 dtype_dict[GTFSFilenames.stops]             =  {"stop_id"   : VARCHAR(20)}     
 dtype_dict[GTFSFilenames.stop_times]        =  {"stop_id"   : VARCHAR(20), "trip_id" :  VARCHAR(50)}      
-dtype_dict[GTFSFilenames.trips]             =  { "trip_id"  : VARCHAR(50)} 
-
+dtype_dict[GTFSFilenames.trips]             =  {"trip_id"   : VARCHAR(50)} 
+dtype_dict[GTFSFilenames.RT]                =  {
+                                                "raw" : { "trip_id" : VARCHAR(50), "date" : Date},
+                                                "trip": { "trip_id" : VARCHAR(50), "date" : Date}, 
+                                                'stop': { "trip_id" : VARCHAR(50),"stop_id" : VARCHAR(50)}
+                                                }
 
 
 pk_dict = {}
-pk_dict[GTFSFilenames.agency]            =  ["agency_id"]     
-pk_dict[GTFSFilenames.calendar]          =  ["service_id","start_date"]    
-pk_dict[GTFSFilenames.calendar_dates]    =  ["service_id","date"]    
-pk_dict[GTFSFilenames.routes]            =  ["route_id"]      
-pk_dict[GTFSFilenames.shapes]            =  ["shape_id","shape_pt_sequence"] 
-pk_dict[GTFSFilenames.stops]             =  ["stop_id"]       
-pk_dict[GTFSFilenames.stop_times]        =  ["stop_id","trip_id"]       
-pk_dict[GTFSFilenames.trips]             =  ["trip_id"]       
+pk_dict[GTFSFilenames.agency]           =  ["agency_id"]     
+pk_dict[GTFSFilenames.calendar]         =  ["service_id","start_date"]    
+pk_dict[GTFSFilenames.calendar_dates]   =  ["service_id","date"]    
+pk_dict[GTFSFilenames.routes]           =  ["route_id"]      
+pk_dict[GTFSFilenames.shapes]           =  ["shape_id","shape_pt_sequence"] 
+pk_dict[GTFSFilenames.stops]            =  ["stop_id"]       
+pk_dict[GTFSFilenames.stop_times]       =  ["stop_id","trip_id"]       
+pk_dict[GTFSFilenames.trips]            =  ["trip_id"]   
+pk_dict[GTFSFilenames.RT]               =  {'trip' : ["trip_id","timestamp"], 'stop': ["stop_id"]}   
+
 
 
 def get_db_table_dtype(tablename :GTFSFilenames):

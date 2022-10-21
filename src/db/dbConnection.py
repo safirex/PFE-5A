@@ -19,6 +19,8 @@ engine = create_engine(uri, echo=False)
 def connect(db_table:DbTables):
     ''' return a sqlalchemy connexion to the db '''
     return engine,engine.connect(db_table.name)
+def get_engine():
+    return engine
 
 
 def add_Data(dataframe,table_name,dtype=None):

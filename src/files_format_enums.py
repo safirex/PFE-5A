@@ -11,3 +11,4 @@ class GTFSFilenames(Enum):
     stop_times=5
     stops=6
     trips=7
+    RT = 8
