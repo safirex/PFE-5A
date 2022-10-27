@@ -5,8 +5,8 @@ VALUES (    new.trip_id,new.route_id,new.direction_id,new.timestamp,new.vehicle_
 END if;
 
 IF NOT EXISTS (SELECT 1 FROM rt_stop_info WHERE trip_id = NEW.trip_id AND stop_id = NEW.stop_id ) THEN
-INSERT INTO rt_stop_info(trip_id,stop_id,arrival_delay,arrival_time,departure_delay,departure_time)
-VALUES ( new.trip_id,new.stop_id,new.arrival_delay,new.arrival_time,new.departure_delay,new.departure_time);
+INSERT INTO rt_stop_info(trip_id,stop_id,arrival_delay,arrival_time,departure_delay,departure_time,scheduled_relationship)
+VALUES ( new.trip_id,new.stop_id,new.arrival_delay,new.arrival_time,new.departure_delay,new.departure_time,NEW.scheduled_relationship);
 END if;
 
 END

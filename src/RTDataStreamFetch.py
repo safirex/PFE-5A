@@ -65,29 +65,11 @@ def save_rt_data_to_db():
     
     # pour creation
     # add_Data(dataframe=df,table_name="raw_rt_data",index=True,dtype=get_db_table_dtype(GTFSFilenames.RT)['raw'],exists='append')
+    
+    
+    print(df)
     df.to_sql('raw_rt_data',get_engine(),index=False,if_exists='append')
-    
-    
-    # ins = getTable('raw_rt_data').insert()
-    # get_engine().execute(ins,{'id': "None",'trip_id' : df['trip_id'],'route_id' : df['route_id'],'direction_id' : df['direction_id'],
-    #     'timestamp' : df['timestamp'],'vehicle_id' : df['vehicle_id'],'vehicle_label' : df['vehicle_label']})
-    
-    
-    
-    # add_Data(dataframe=df,table_name="raw_rt_data",index=False,dtype=get_db_table_dtype(GTFSFilenames.RT)['raw'],exists='append')
-
-
-    # get_engine().execute('''insert into raw_rt_data(trip_id,route_id,direction_id,timestamp,vehicle_id,vehicle_label,stop_id,arrival_delay,arrival_time,departure_delay,departure_time)
-    #     values ()''')
-
-    # table  = getTable('raw_rt_data')
-        # table = Table(tablename, MetaData(), autoload_with=get_engine())
-
-    # ins = table.insert().values(
-        
-    # )
-    # print(df)
-
+    # print(liste)
 
 
 save_rt_data_to_db()

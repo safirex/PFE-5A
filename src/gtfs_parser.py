@@ -1,3 +1,14 @@
+from enum import Enum
+
+
+class ScheduleRelationship(Enum):
+    # see https://gtfs.org/realtime/reference/#enum-schedulerelationship_1
+    SCHEDULED = 0  
+    SKIPPED = 1
+    NO_DATA = 2
+
+
+
 def parse_entity(entity):
     """
 
@@ -31,16 +42,17 @@ def parse_stop_update(stop_update):
 
     arrival     = stop_update.arrival
     departure   = stop_update.departure
+    schedule    = stop_update.schedule_relationship
+    schedule    = ScheduleRelationship(schedule).name
 
     arrival_delay   = arrival.delay
     arrival_time    = arrival.time
 
     departure_delay = departure.delay
     departure_time  = departure.time
-
-    return [stop_id,arrival_delay,arrival_time,departure_delay,departure_time]
+    return [stop_id,arrival_delay,arrival_time,departure_delay,departure_time,schedule]
 
 def get_entity_column_names():
     return ['trip_id','route_id','direction_id','timestamp','vehicle_id','vehicle_label','stop_list']
 def get_stop_column_names():
-    return ['stop_id','arrival_delay','arrival_time','departure_delay','departure_time']
+    return ['stop_id','arrival_delay','arrival_time','departure_delay','departure_time','scheduled_relationship']
