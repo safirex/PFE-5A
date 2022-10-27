@@ -1,11 +1,12 @@
 from msilib import add_data
+from numpy import append
 import pandas as pd
 import requests
 from google.transit import gtfs_realtime_pb2
 from protobuf_to_dict import protobuf_to_dict
 
 from db.dbConnection import *
-from db.dbschemes import get_db_table_dtype
+from db.dbschemes import create_tables, get_data_tables, get_db_table_dtype, get_table_schema
 import gtfs_parser
 
 # import pygtfs
@@ -59,12 +60,36 @@ def save_rt_data_to_db():
             # trip,trip_stops = gtfs_parser.parse_entity(entity)
 
     df = format_for_sql(liste)
-
+    # df.insert(0,'id',['auto']*len(df['trip_id']))
     # add_Data(df,engine)
-    add_Data(dataframe=df,table_name="raw_rt_data",dtype=get_db_table_dtype(GTFSFilenames.RT)['raw'])
+    
+    # pour creation
+    # add_Data(dataframe=df,table_name="raw_rt_data",index=True,dtype=get_db_table_dtype(GTFSFilenames.RT)['raw'],exists='append')
+    df.to_sql('raw_rt_data',get_engine(),index=False,if_exists='append')
+    
+    
+    # ins = getTable('raw_rt_data').insert()
+    # get_engine().execute(ins,{'id': "None",'trip_id' : df['trip_id'],'route_id' : df['route_id'],'direction_id' : df['direction_id'],
+    #     'timestamp' : df['timestamp'],'vehicle_id' : df['vehicle_id'],'vehicle_label' : df['vehicle_label']})
+    
+    
+    
+    # add_Data(dataframe=df,table_name="raw_rt_data",index=False,dtype=get_db_table_dtype(GTFSFilenames.RT)['raw'],exists='append')
 
-    print(df)
+
+    # get_engine().execute('''insert into raw_rt_data(trip_id,route_id,direction_id,timestamp,vehicle_id,vehicle_label,stop_id,arrival_delay,arrival_time,departure_delay,departure_time)
+    #     values ()''')
+
+    # table  = getTable('raw_rt_data')
+        # table = Table(tablename, MetaData(), autoload_with=get_engine())
+
+    # ins = table.insert().values(
+        
+    # )
+    # print(df)
 
 
 
 save_rt_data_to_db()
+
+# create_tables()

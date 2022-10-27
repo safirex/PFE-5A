@@ -1,4 +1,4 @@
-from sqlalchemy import BIGINT, VARCHAR, Date, Integer, PrimaryKeyConstraint, Table, Text
+from sqlalchemy import BIGINT, INTEGER, VARCHAR, Date, Identity, Integer, PrimaryKeyConstraint, Table, Text
 import sys
 from db.dbConnection import get_engine
 sys.path.append('..')
@@ -31,7 +31,7 @@ pk_dict[GTFSFilenames.shapes]           =  ["shape_id","shape_pt_sequence"]
 pk_dict[GTFSFilenames.stops]            =  ["stop_id"]       
 pk_dict[GTFSFilenames.stop_times]       =  ["stop_id","trip_id"]       
 pk_dict[GTFSFilenames.trips]            =  ["trip_id"]   
-pk_dict[GTFSFilenames.RT]               =  {'trip' : ["trip_id","timestamp"], 'stop': ["trip_id","stop_id"]}   
+pk_dict[GTFSFilenames.RT]               =  {'trip' : ["trip_id","timestamp"], 'stop': ["trip_id","stop_id"],'raw': ['id']}   
 
 
 
@@ -59,6 +59,8 @@ def get_db_table_pkeys(tablename :GTFSFilenames):
 metadata = MetaData()
 table_dict = {}
 
+
+
 def get_data_tables():
     
     engine = get_engine()
@@ -81,13 +83,32 @@ def get_data_tables():
         Column('departure_delay',BIGINT),
         Column('departure_time',BIGINT),
     )
+    raw_rt = Table('raw_rt_data',metadata,
+        Column('id', INTEGER, primary_key=True,autoincrement='auto' ),
+        Column('trip_id',VARCHAR(50)),
+        Column('route_id',VARCHAR(50)),
+        Column('direction_id',BIGINT),
+        Column('timestamp',BIGINT),
+        Column('vehicle_id',VARCHAR(50)),
+        Column('vehicle_label',VARCHAR(50)),
+        Column('stop_id',VARCHAR(50)),
+        Column('arrival_delay',BIGINT),
+        Column('arrival_time',BIGINT),
+        Column('arrival_delay',BIGINT),
+        Column('departure_delay',BIGINT),
+        Column('departure_time',BIGINT),
+    )
 
+    table_dict['raw']  = raw_rt
     table_dict['trip'] = trips_rt
     table_dict['stop'] = stop_rt
+    return table_dict
 
 def get_table_schema(name:str):
     return table_dict[name]
 
 def create_tables():
+    get_data_tables()
     engine = get_engine()
     metadata.create_all(engine)
+
