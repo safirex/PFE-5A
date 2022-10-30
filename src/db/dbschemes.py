@@ -41,21 +41,6 @@ def get_db_table_pkeys(tablename :GTFSFilenames):
     return pk_dict[tablename]
 
 
-
-# trips_rt = Table('trips',metadata,
-#     Column('trip_id',VARCHAR(50),primary_key=True),
-#     Column('route_id',VARCHAR(50)),
-#     Column('direction_id',BIGINT),
-#     Column('timestamp',BIGINT,primary_key=True),
-#     Column('vehicle_id',VARCHAR(50)),
-#     Column('vehicle_label',VARCHAR(50)),
-#     Column('stop_id',VARCHAR(50),primary_key=True),
-#     Column('arrival_delay',BIGINT),
-#     Column('arrival_time',BIGINT),
-#     Column('arrival_delay',BIGINT),
-#     Column('departure_delay',BIGINT),
-#     Column('departure_time',BIGINT),
-# )
 metadata = MetaData()
 table_dict = {}
 

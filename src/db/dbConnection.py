@@ -13,8 +13,19 @@ class DbTables(Enum):
     Test = 1
 
 
-uri = 'mysql://root:eudeseude@localhost:3306/pfe'
+# uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
+db_sys  = 'postgresql'
+db_host = 'localhost'
+db_user = 'dataprovider'
+db_pass = 'pleasework'
+db_port = '5432'
+# db_database = '/pfe'
+uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
+# uri = 'postgresql://root:postgres@localhost:5432'
 engine = create_engine(uri, echo=False)
+
+# engine.execute('SELECT current_user;')
+
 # conn = engine.connect('test_static_data')
 
 
