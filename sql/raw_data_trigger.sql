@@ -1,4 +1,4 @@
-CREATE TRIGGER `raw_rt_data_after_insert` AFTER INSERT ON `raw_rt_data` FOR EACH ROW BEGIN
+CREATE TRIGGER 'raw_rt_data_after_insert' AFTER INSERT ON 'raw_rt_data' FOR EACH ROW BEGIN
 IF NOT EXISTS (SELECT 1 FROM rt_trip_info WHERE trip_id = NEW.trip_id) THEN
 INSERT INTO rt_trip_info(trip_id,route_id,direction_id,timestamp,vehicle_id,vehicle_label)
 VALUES (    new.trip_id,new.route_id,new.direction_id,new.timestamp,new.vehicle_id,new.vehicle_label);
