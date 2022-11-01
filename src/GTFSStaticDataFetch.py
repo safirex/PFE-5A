@@ -1,5 +1,4 @@
 from enum import Enum
-from msilib.schema import Error
 import requests
 from sqlalchemy import PrimaryKeyConstraint
 from db.dbConnection import *
