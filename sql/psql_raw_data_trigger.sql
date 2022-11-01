@@ -10,6 +10,7 @@ CREATE FUNCTION insert_trigger() RETURNS trigger AS $$
         INSERT INTO rt_stop_info(trip_id,stop_id,arrival_delay,arrival_time,departure_delay,departure_time,scheduled_relationship)
         VALUES ( new.trip_id,new.stop_id,new.arrival_delay,new.arrival_time,new.departure_delay,new.departure_time,NEW.scheduled_relationship);
         END if;
+        RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
 
