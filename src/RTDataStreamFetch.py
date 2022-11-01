@@ -2,7 +2,6 @@ from numpy import append
 import pandas as pd
 import requests
 from google.transit import gtfs_realtime_pb2
-from protobuf_to_dict import protobuf_to_dict
 
 from db.dbConnection import *
 from db.dbschemes import create_tables, get_data_tables, get_db_table_dtype, get_table_schema
