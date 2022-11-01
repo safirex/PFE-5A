@@ -1,6 +1,6 @@
 
 
-CREATE FUNCTION insert_trigger() RETURNS trigger AS $$
+CREATE or REPLACE FUNCTION insert_trigger() RETURNS trigger AS $$
     BEGIN
         IF NOT EXISTS (SELECT 1 FROM rt_trip_info WHERE trip_id = NEW.trip_id) THEN
         INSERT INTO rt_trip_info(trip_id,route_id,direction_id,timestamp,vehicle_id,vehicle_label)
