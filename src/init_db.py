@@ -44,7 +44,7 @@ stop_rt = Table('rt_stop_info',metadata,
     Column('scheduled_relationship',VARCHAR(50))
 )
 
-f = open("../sql/raw_data_trigger.sql", "r")
+f = open("../sql/psql_raw_data_trigger.sql", "r")
 trigger = f.read() 
 
 # trigger = '''CREATE TRIGGER `raw_rt_data_after_insert` AFTER INSERT ON `raw_rt_data` FOR EACH ROW BEGIN
