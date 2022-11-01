@@ -58,6 +58,6 @@ def less_dumb_db_import():
 
 def get_data_scheme(dataframe,table_name,file :GTFSFilenames):
     pass
-
+fetch_and_save()
 less_dumb_db_import()
 
