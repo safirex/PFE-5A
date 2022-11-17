@@ -29,7 +29,7 @@ trips_rt = Table('rt_trip_info',metadata,
     Column('trip_id',VARCHAR(50),primary_key=True),
     Column('route_id',VARCHAR(50)),
     Column('direction_id',BIGINT),
-    Column('timestamp',DateTime,primary_key=True),
+    Column('timestamp',DateTime(timezone=True),primary_key=True),
     Column('vehicle_id',VARCHAR(50)),
     Column('vehicle_label',VARCHAR(50))
 )
@@ -38,9 +38,9 @@ stop_rt = Table('rt_stop_info',metadata,
     Column('trip_id',VARCHAR(50),primary_key=True),
     Column('stop_id',VARCHAR(50),primary_key=True),
     Column('arrival_delay',BIGINT),
-    Column('arrival_time',DateTime),
+    Column('arrival_time',DateTime(timezone=True)),
     Column('departure_delay',BIGINT,primary_key=True),
-    Column('departure_time',DateTime),
+    Column('departure_time',DateTime(timezone=True)),
     Column('scheduled_relationship',VARCHAR(50))
 )
 
