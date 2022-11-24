@@ -51,9 +51,10 @@ def select_rt_scheduled2():
     query = """ SELECT rt.trip_id,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),st.arrival_time,st.departure_time FROM stop_times AS st
                 INNER JOIN rt_stop_info rt
                 ON st.trip_id = rt.trip_id AND st.stop_id = rt.stop_id
-                GROUP BY rt.stop_id ; """
+                GROUP BY rt.trip_id,rt.stop_id ; """
     
     res =  pd.DataFrame(engine.execute(query),columns=column)
+    print("return of db = ",res)
     # res = modify_rt_data_timestamp(res,'arrival_time')
     # res = modify_rt_data_timestamp(res,'departure_time')
     return res
