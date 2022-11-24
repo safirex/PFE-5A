@@ -1,5 +1,5 @@
 from enum import Enum
-
+from files_format_enums import *
 
 class ScheduleRelationship(Enum):
     # see https://gtfs.org/realtime/reference/#enum-schedulerelationship_1
@@ -56,3 +56,10 @@ def get_entity_column_names():
     return ['trip_id','route_id','direction_id','timestamp','vehicle_id','vehicle_label','stop_list']
 def get_stop_column_names():
     return ['stop_id','arrival_delay','arrival_time','departure_delay','departure_time','scheduled_relationship']
+
+column_dict = {}
+column_dict[GTFSFilenames.rt_stop_info] = ['trip_id']+get_stop_column_names()
+column_dict[GTFSFilenames.rt_trip_info] = get_stop_column_names()[:-1]
+# column_dict[GTFSFilenames.stop_times] = ['trip_id','arrival_time','departure_time','stop_id','stop_sequence',' pickup_type','drop_off_type']
+def get_rt_column_names(table:GTFSFilenames):
+    return column_dict[table]
