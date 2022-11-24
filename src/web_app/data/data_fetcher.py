@@ -55,7 +55,8 @@ def select_rt_scheduled2():
                 limit 1000; """
     
     res =  pd.DataFrame(engine.execute(query),columns=column)
-    print("return of db = ",res)
+    res['arrival_delay']  =res['arrival_delay'].astype(int)
+    res['departure_delay']  =res['departure_delay'].astype(int)
     # res = modify_rt_data_timestamp(res,'arrival_time')
     # res = modify_rt_data_timestamp(res,'departure_time')
     return res
