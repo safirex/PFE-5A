@@ -48,7 +48,7 @@ def select_stop_rt_on_scheduled():
 
 def select_rt_scheduled2():
     column = get_rt_column_names(tables.rt_stop_info)[:3]+['departure_delay','static_arrival_time','static_departure_time']
-    query = """ SELECT rt.trip_id,rt.stop_id,AVG(rt.arrival_delay),AVG(rt.departure_delay),st.arrival_time,st.departure_time FROM stop_times AS st
+    query = """ SELECT rt.trip_id,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),st.arrival_time,st.departure_time FROM stop_times AS st
                 INNER JOIN rt_stop_info rt
                 ON st.trip_id = rt.trip_id AND st.stop_id = rt.stop_id
                 GROUP BY rt.stop_id ; """
