@@ -12,12 +12,13 @@ engine = db.get_engine()
 def select_raw_data():
     return pd.DataFrame( engine.execute('select * from raw_rt_data limit 100;'))
 
-def select_rt_stops(begin,end):
+def select_rt_stops(line_limit,begin,end):
     begin_date = date_to_timestamp(begin)
     end_date = date_to_timestamp(end)
+    limit = manage_line_limit(line_limit)
     table = tables.rt_stop_info
     print("begins at ",begin_date)
-    query = 'select * from '+ table.name +' where arrival_time>'+str(begin_date)+' and departure_time<'+str(end_date)
+    query = 'select * from '+ table.name +' where arrival_time>'+str(begin_date)+' and departure_time<'+str(end_date)+' '+limit
     res =  pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
 
     # setup dataframe labels
@@ -25,12 +26,13 @@ def select_rt_stops(begin,end):
     modify_rt_data_timestamp(res,'departure_time')
     return res
 
-def select_nb_stops_per_hour():
+def select_nb_stops_per_hour(line_limit):
     # SELECT stop_id,AVG(arrival_delay),round(AVG(departure_delay)),cast(floor(arrival_time/3600) as INTEGER )%24 as hourly, COUNT(*) FROM rt_stop_info GROUP BY stop_id, hourly LIMIT 1000;
     table = tables.rt_stop_info.name
+    limit = manage_line_limit(line_limit)
     columns = 'stop_id,AVG(arrival_delay),round(AVG(departure_delay)),MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24) as arrival_hour, COUNT(*)'
     group = "group by stop_id, arrival_hour"
-    query = '''select %s from %s %s'''%(columns,table,group)
+    query = '''select %s from %s %s %s'''%(columns,table,group,limit)
     columns_name = columns.split(',')
     columns_name[-2] = 'arrival_hour'
     columns_name.pop(-3) 
@@ -42,9 +44,9 @@ def select_nb_stops_per_hour():
     
 
 
-def select_scheduled_stops():
+def select_scheduled_stops(limit:int):
     table = tables.stop_times
-    query = 'select * from ' + table.name + ';' 
+    query = 'select * from %s %s'%(table.name, manage_line_limit(limit))
     res =  pd.DataFrame(engine.execute(query),columns=['trip_id','arrival_time','departure_time','stop_id','stop_sequence',' pickup_type','drop_off_type'])
     res = res.drop(0)
     return res
@@ -101,7 +103,7 @@ def manage_line_limit(limit:int):
         limit_string = "limit "+str(limit)
     return limit_string
 
-def manage_sql_optional_conditions(conditions:list[str],having=False):
+def manage_sql_optional_conditions(conditions:list,having=False):
     not_empty_conds = []
     for condition in conditions:
         if condition != "":

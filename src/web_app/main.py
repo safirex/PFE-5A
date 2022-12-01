@@ -13,10 +13,10 @@ import charts.plotly as charts
 
 data = {}
 def fetch_data(line_limit,begin_date,end_date):
-    data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit,begin_date,end_date)
-    data['scheduled_stops']=fd.select_scheduled_stops()
-    data['rt_stops'] = fd.select_rt_stops(begin_date,end_date)
-    data['stops_per_hour'] = fd.select_nb_stops_per_hour()
+    data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit, begin_date, end_date)
+    data['scheduled_stops']=fd.select_scheduled_stops(line_limit)
+    data['rt_stops'] = fd.select_rt_stops(line_limit, begin_date, end_date)
+    data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit)
 
 
 col1, col2 = st.columns(2)
