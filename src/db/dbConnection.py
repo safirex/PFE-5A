@@ -30,13 +30,7 @@ db_pass = db_params['db_pass']
 db_port = db_params['db_port']
 uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe2'
 
-# uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
-# db_sys  = 'postgresql'
-# db_host = 'localhost'
-# db_user = 'dataprovider'
-# db_pass = 'pleasework'
-# db_port = '5432'
-# uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
+
 engine = create_engine(uri, echo=False)
 
 # engine.execute('SELECT current_user;')
