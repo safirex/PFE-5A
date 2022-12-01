@@ -13,7 +13,7 @@ import charts.plotly as charts
 
 data = {}
 def fetch_data(line_limit,begin_date,end_date):
-    # data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit,begin_date,end_date)
+    data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit,begin_date,end_date)
     data['scheduled_stops']=fd.select_scheduled_stops()
     data['rt_stops'] = fd.select_rt_stops(begin_date,end_date)
     data['stops_per_hour'] = fd.select_nb_stops_per_hour()
@@ -46,27 +46,20 @@ engine = db.get_engine()
 
 # trip_ids = data['scheduled_stops']
 
-# st.dataframe(data['stops_average_delay'])
+st.dataframe(data['stops_average_delay'])
+
+
 st.dataframe(data['stops_per_hour'])
 tmp = data['stops_per_hour']
 hist_data:pd.DataFrame = tmp[['stop_id','AVG(arrival_delay)','arrival_hour']]
 
-st.dataframe(hist_data)
+# st.dataframe(hist_data)
 st.write("retard moyen en seconde du réseau dijonnais au fil de la journée ")
 fig = px.histogram(hist_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
 
-
-# fig = ff.create_distplot(
-#     hist_data,group_labels=hist_data['stop_id'].array )
-# fig = px.histogram(hist_data, x="total_bill", y="tip", color="sex", marginal="rug",
-#                    hover_data=df.columns)
-# st.plotly_chart(fig, use_container_width=True)
-
-
-
-
-# x = np.random.randn(1000)
-# hist_data = [x]
-# group_labels = ['distplot'] # name of the dataset
-# st.plotly_chart(charts.displot(hist_data,group_labels))
+stop =st.selectbox('stop id to observe',hist_data['stop_id'])
+print(hist_data.where(hist_data['stop_id']==stop))
+stop_data = hist_data.where(hist_data['stop_id']==stop)
+fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
+st.plotly_chart(fig)

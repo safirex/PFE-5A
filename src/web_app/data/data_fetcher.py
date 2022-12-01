@@ -67,24 +67,28 @@ def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.dat
     date_condition = manage_time_limit(begin,end,'rt.arrival_time',True)
     limit_string = manage_line_limit(line_limit)
     sql_where = manage_sql_optional_conditions([date_condition])
-    column = ['nom de stop'] + get_rt_column_names(tables.rt_stop_info)[:3] + ['departure_delay','static_arrival_time','static_departure_time']
+    column = ['nom de stop','stop id','avg arrival delay','avg departure delay','count(*)']
     
-    query = """ SELECT stops.stop_name,rt.trip_id,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),st.arrival_time,st.departure_time FROM stop_times AS st
+    query = """ SELECT stops.stop_name,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),count(*) FROM stop_times AS st
                 INNER JOIN rt_stop_info rt
                 ON st.trip_id = rt.trip_id AND st.stop_id = rt.stop_id
                 INNER JOIN stops
                 ON rt.stop_id = stops.stop_id
                 """ + sql_where + """
-                GROUP BY rt.trip_id,rt.stop_id,st.arrival_time,st.departure_time  
+                GROUP BY rt.stop_id,stops.stop_name
                 """+ limit_string +"""; """
     
     res =  pd.DataFrame(engine.execute(query),columns=column)
-    res['arrival_delay']  =res['arrival_delay'].astype(int)
-    res['departure_delay']  =res['departure_delay'].astype(int)
+    res['avg arrival delay']  =res['avg arrival delay'].astype(int)
+    res['avg departure delay']  =res['avg departure delay'].astype(int)
     return res
 
 
-
+def select_nb_stop_per_hour_per_stop():
+    query = """ SELECT rt.stop_id, count(*)
+                from rt_stop_info rt
+                group by rt.stop_id,MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24)
+            """
 
 
 
