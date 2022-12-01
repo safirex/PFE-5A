@@ -8,7 +8,7 @@ from files_format_enums import GTFSFilenames
 
 db_params = {}
 def load_db_conf():
-    f = open('dbConf.conf')
+    f = open('db.conf')
     for line in f:
         content = line.strip().replace(' ','').split('=')
         db_params[content[0]] = content[1]
