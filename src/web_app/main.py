@@ -23,7 +23,7 @@ col1, col2 = st.columns(2)
 with col1:
     begin_date = st.date_input(
         "begin date",
-        datetime.date.today())
+        datetime.date.today() - datetime.timedelta(days=32))
 with col2:
     end_date = st.date_input(
         "end date",
