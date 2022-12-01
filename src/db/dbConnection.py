@@ -6,6 +6,12 @@ from sqlalchemy.types import *
 from enum import Enum
 from files_format_enums import GTFSFilenames
 
+db_params = {}
+def load_db_conf():
+    f = open('dbConf.conf')
+    for line in f:
+        content = line.strip().replace(' ','').split('=')
+        db_params[content[0]] = content[1]
 
 
 class DbTables(Enum):
@@ -13,15 +19,21 @@ class DbTables(Enum):
     Test = 1
 
 
-# uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
-db_sys  = 'postgresql'
-db_host = 'localhost'
-db_user = 'dataprovider'
-db_pass = 'pleasework'
-db_port = '5432'
-# db_database = '/pfe'
-uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
-# uri = 'postgresql://root:postgres@localhost:5432'
+load_db_conf()
+db_sys  = db_params['db_sys']
+db_host = db_params['db_host']
+db_user = db_params['db_user']
+db_pass = db_params['db_pass']
+db_port = db_params['db_port']
+uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe2'
+
+uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
+# db_sys  = 'postgresql'
+# db_host = 'localhost'
+# db_user = 'dataprovider'
+# db_pass = 'pleasework'
+# db_port = '5432'
+# uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
 engine = create_engine(uri, echo=False)
 
 # engine.execute('SELECT current_user;')
