@@ -2,16 +2,21 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import datetime
+import plotly.figure_factory as ff
+import plotly.express as px
 # https://docs.streamlit.io/library/api-reference/widgets
 import sys
 sys.path.append("..")
 import db.dbConnection as db
 import data.data_fetcher as fd
+import charts.plotly as charts
 
 data = {}
-def fetch_data():
+def fetch_data(line_limit,begin_date,end_date):
+    # data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit,begin_date,end_date)
     data['scheduled_stops']=fd.select_scheduled_stops()
     data['rt_stops'] = fd.select_rt_stops(begin_date,end_date)
+    data['stops_per_hour'] = fd.select_nb_stops_per_hour()
 
 
 col1, col2 = st.columns(2)
@@ -24,11 +29,12 @@ with col2:
         "end date",
         datetime.date.today())
 st.write("data from ", begin_date," to ",end_date)
-# if st.button('reload data',type='secondary'):
-#     fetch_data()
+
+line_limit = st.number_input("db line limit (0 = whole table)",value=1000,min_value=0,max_value=None)
+sql_display = st.selectbox("display request based on ",('stop ids', 'station names'))
 
 
-fetch_data()
+fetch_data(line_limit,begin_date,end_date)
 
 engine = db.get_engine()
 
@@ -40,5 +46,27 @@ engine = db.get_engine()
 
 # trip_ids = data['scheduled_stops']
 
+# st.dataframe(data['stops_average_delay'])
+st.dataframe(data['stops_per_hour'])
+tmp = data['stops_per_hour']
+hist_data:pd.DataFrame = tmp[['stop_id','AVG(arrival_delay)','arrival_hour']]
 
-st.dataframe(fd.select_rt_scheduled2())
+st.dataframe(hist_data)
+st.write("retard moyen en seconde du réseau dijonnais au fil de la journée ")
+fig = px.histogram(hist_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
+st.plotly_chart(fig)
+
+
+# fig = ff.create_distplot(
+#     hist_data,group_labels=hist_data['stop_id'].array )
+# fig = px.histogram(hist_data, x="total_bill", y="tip", color="sex", marginal="rug",
+#                    hover_data=df.columns)
+# st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+# x = np.random.randn(1000)
+# hist_data = [x]
+# group_labels = ['distplot'] # name of the dataset
+# st.plotly_chart(charts.displot(hist_data,group_labels))

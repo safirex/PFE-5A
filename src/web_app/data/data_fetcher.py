@@ -25,6 +25,23 @@ def select_rt_stops(begin,end):
     modify_rt_data_timestamp(res,'departure_time')
     return res
 
+def select_nb_stops_per_hour():
+    # SELECT stop_id,AVG(arrival_delay),round(AVG(departure_delay)),cast(floor(arrival_time/3600) as INTEGER )%24 as hourly, COUNT(*) FROM rt_stop_info GROUP BY stop_id, hourly LIMIT 1000;
+    table = tables.rt_stop_info.name
+    columns = 'stop_id,AVG(arrival_delay),round(AVG(departure_delay)),MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24) as arrival_hour, COUNT(*)'
+    group = "group by stop_id, arrival_hour"
+    query = '''select %s from %s %s'''%(columns,table,group)
+    columns_name = columns.split(',')
+    columns_name[-2] = 'arrival_hour'
+    columns_name.pop(-3) 
+    print(columns_name)
+    df= pd.DataFrame(engine.execute(query),columns=columns_name)
+    df['round(AVG(departure_delay))']  =df['round(AVG(departure_delay))'].astype(int)
+    df['AVG(arrival_delay)']  =df['AVG(arrival_delay)'].astype(int)
+    return df
+    
+
+
 def select_scheduled_stops():
     table = tables.stop_times
     query = 'select * from ' + table.name + ';' 
@@ -46,22 +63,67 @@ def select_stop_rt_on_scheduled():
     res = modify_rt_data_timestamp(res,'departure_time')
     return res
 
-def select_rt_scheduled2():
-    column = get_rt_column_names(tables.rt_stop_info)[:3]+['departure_delay','static_arrival_time','static_departure_time']
-    query = """ SELECT rt.trip_id,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),st.arrival_time,st.departure_time FROM stop_times AS st
+def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.datetime):
+    date_condition = manage_time_limit(begin,end,'rt.arrival_time',True)
+    limit_string = manage_line_limit(line_limit)
+    sql_where = manage_sql_optional_conditions([date_condition])
+    column = ['nom de stop'] + get_rt_column_names(tables.rt_stop_info)[:3] + ['departure_delay','static_arrival_time','static_departure_time']
+    
+    query = """ SELECT stops.stop_name,rt.trip_id,rt.stop_id,ROUND(AVG(rt.arrival_delay)),ROUND(AVG(rt.departure_delay)),st.arrival_time,st.departure_time FROM stop_times AS st
                 INNER JOIN rt_stop_info rt
                 ON st.trip_id = rt.trip_id AND st.stop_id = rt.stop_id
+                INNER JOIN stops
+                ON rt.stop_id = stops.stop_id
+                """ + sql_where + """
                 GROUP BY rt.trip_id,rt.stop_id,st.arrival_time,st.departure_time  
-                limit 1000; """
+                """+ limit_string +"""; """
     
     res =  pd.DataFrame(engine.execute(query),columns=column)
     res['arrival_delay']  =res['arrival_delay'].astype(int)
     res['departure_delay']  =res['departure_delay'].astype(int)
-    # res = modify_rt_data_timestamp(res,'arrival_time')
-    # res = modify_rt_data_timestamp(res,'departure_time')
     return res
 
-def date_to_timestamp(user_date:datetime.date):
+
+
+
+
+
+
+
+
+def manage_line_limit(limit:int):
+    limit_string =""
+    if(limit!=0):
+        limit_string = "limit "+str(limit)
+    return limit_string
+
+def manage_sql_optional_conditions(conditions:list[str],having=False):
+    not_empty_conds = []
+    for condition in conditions:
+        if condition != "":
+            not_empty_conds.append(condition)
+    
+    if(len(not_empty_conds)==0):
+        return ""
+    
+    if(having): res = "having "
+    else :      res = "where "
+
+    for i in  range(len(not_empty_conds)):
+        res = res + not_empty_conds[i]+" "
+        if(i < len(not_empty_conds)-1):
+            res = res + " and "
+    return res
+
+
+def manage_time_limit(begin:datetime.datetime,end:datetime.datetime,column:str,isTimestamp=False):
+    if(not isTimestamp):
+        string = " %s > %s and %s < %s" %(column,str(begin),column,str(end))
+    else:
+        string = " %s > %d and %s < %d" %(column,date_to_timestamp(begin),column,date_to_timestamp(end))
+    return string
+
+def date_to_timestamp(user_date:datetime.date or datetime.datetime):
     return time.mktime(datetime.datetime.strptime(str(user_date), "%Y-%m-%d").timetuple())
 
 def timestamp_to_date(timestamp):
