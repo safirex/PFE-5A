@@ -5,10 +5,13 @@ from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.types import *
 from enum import Enum
 from files_format_enums import GTFSFilenames
+from pathlib import Path
+path = Path(__file__).parent / "./db.conf"
+
 
 db_params = {}
 def load_db_conf():
-    f = open('db.conf')
+    f = open(path)
     for line in f:
         content = line.strip().replace(' ','').split('=')
         db_params[content[0]] = content[1]
@@ -25,7 +28,7 @@ db_host = db_params['db_host']
 db_user = db_params['db_user']
 db_pass = db_params['db_pass']
 db_port = db_params['db_port']
-uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
+uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe2'
 
 # uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
 # db_sys  = 'postgresql'
