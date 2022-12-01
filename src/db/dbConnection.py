@@ -25,7 +25,7 @@ db_host = db_params['db_host']
 db_user = db_params['db_user']
 db_pass = db_params['db_pass']
 db_port = db_params['db_port']
-uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe2'
+uri = db_sys+'://'+db_user+':'+db_pass+'@'+db_host+':'+db_port+'/pfe'
 
 # uri = 'mysql://root:eudeseude@localhost:3306/pfe2'
 # db_sys  = 'postgresql'
