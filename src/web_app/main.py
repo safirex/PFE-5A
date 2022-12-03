@@ -60,7 +60,7 @@ st.write("retard moyen en seconde du réseau dijonnais au fil de la journée ")
 fig = px.histogram(hist_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
 
-stop =st.selectbox('stop id to observe',hist_data['stop_id'])
+stop =st.selectbox('stop id to observe',np.unique(hist_data['stop_id']))
 stop_data = hist_data.where(hist_data['stop_id']==stop)
 fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
