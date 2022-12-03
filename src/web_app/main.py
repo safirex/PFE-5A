@@ -5,12 +5,14 @@ import datetime
 import plotly.figure_factory as ff
 import plotly.express as px
 import math
-# https://docs.streamlit.io/library/api-reference/widgets
+import charts.plotly as charts
 import sys
 sys.path.append("..")
+# https://docs.streamlit.io/library/api-reference/widgets
+
 import db.dbConnection as db
 import data.data_fetcher as fd
-import charts.plotly as charts
+from data.utils import *
 
 data = {}
 def fetch_data(line_limit,begin_date,end_date):
@@ -66,19 +68,39 @@ fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='
 st.plotly_chart(fig)
 
 
-select_stop_data = fd.select_stops_by_id(str(stop),begin_date,end_date)
-print(select_stop_data)
-select_stop_data = select_stop_data.to_numpy()
-
+select_stop_data_r = fd.select_stops_by_id(str(stop),begin_date,end_date,True)
+select_stop_data = select_stop_data_r.to_numpy()
+work_hours = get_working_hours_stop(select_stop_data[:,5])
+print("work hours = ",work_hours)
 max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
 for i  in range(1,len(select_stop_data)):
     current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
-    ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
+    # ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
+    # ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
+    current_hour = math.floor(select_stop_data[i,5]/3600)
     
-    if(max_interval< current_interval and ignore_night):
+    # check the interval isn't because it's night
+    if(max_interval< current_interval and (current_hour-1)%24 in work_hours ):   #and ignore_night):
         max_interval = current_interval
 max_interval = datetime.timedelta(seconds= max_interval)
 print(max_interval)
+st.write("work hours %s"%work_hours)
+st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_interval)
 
-st.write("l'attente maximal sur ce stop est de  %s."%max_interval)
+
+
+
+
+select_stop_data = select_stop_data_r.to_numpy()
+max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
+for i  in range(1,len(select_stop_data)):
+    current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
+    # ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
+    # ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
+    
+    # check the interval isn't because it's night
+    if(max_interval< current_interval  ):   #and ignore_night):
+        max_interval = current_interval
+max_interval = datetime.timedelta(seconds= max_interval)
+print(max_interval)
+st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_interval)

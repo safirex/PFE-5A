@@ -19,7 +19,6 @@ def select_rt_stops(line_limit,begin,end):
     end_date = date_to_timestamp(end)
     limit = manage_line_limit(line_limit)
     table = tables.rt_stop_info
-    print("begins at ",begin_date)
     query = 'select * from '+ table.name +' where arrival_time>'+str(begin_date)+' and departure_time<'+str(end_date)+' '+limit
     res =  pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
 
@@ -38,7 +37,6 @@ def select_nb_stops_per_hour(line_limit):
     columns_name = columns.split(',')
     columns_name[-2] = 'arrival_hour'
     columns_name.pop(-3) 
-    print(columns_name)
     df= pd.DataFrame(engine.execute(query),columns=columns_name)
     df['round(AVG(departure_delay))']  =df['round(AVG(departure_delay))'].astype(int)
     df['AVG(arrival_delay)']  =df['AVG(arrival_delay)'].astype(int)
@@ -110,15 +108,28 @@ def download_csv(begin, end) :
         
     # return res
     
-def select_stops_by_id(id:str,begin,end):
+def select_stops_by_id(id:str,begin,end, order_by_timestamp = False):
     when = manage_time_limit(begin,end,'departure_time',True)
-    where = manage_sql_optional_conditions([when,"stop_id = '%s'"%id])
-    query = "select * from %s %s"%(tables.rt_stop_info.name,where)    
+    _,who = name_or_id(id,'id')
+    where = manage_sql_optional_conditions([when,who])
+    order = ("order by departure_time" if order_by_timestamp else "")
+    query = "select * from %s %s %s"%(tables.rt_stop_info.name,where,order)    
     return pd.DataFrame(engine.execute(query))
 
+def select_stops_by_name(name:str,begin,end):
+    when = manage_time_limit(begin,end,'departure_time',True)
+    join,who = name_or_id(name,'name')
+    where = manage_sql_optional_conditions([when,who])
+    query = "select stop_name,rt.* from %s %s %s"%(tables.rt_stop_info.name,join,where)    
+    return pd.DataFrame(engine.execute(query))
 
-
-
+def name_or_id(name_id:str, colum= 'name' or 'id') :
+    if(colum=='id'):
+        return "","stop_id = '%s'"%name_id
+    elif(colum=='name'):
+        return "rt inner join %s sc on rt.stop_id = sc.stop_id"%tables.stops.name, \
+                    "stop_name like %s"%name_id
+    raise BaseException("bad arguments")
 def manage_line_limit(limit:int):
     limit_string =""
     if(limit!=0):
@@ -162,7 +173,6 @@ def timestamp_to_date(timestamp):
 
 def set_data_labels(data:pd.DataFrame,table:tables):
     columns = get_rt_column_names(table)
-    print(columns)
     data.columns = columns
 
 def modify_rt_data_timestamp(data:pd.DataFrame,colName:str):
