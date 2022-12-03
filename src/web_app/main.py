@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 import plotly.figure_factory as ff
 import plotly.express as px
+import math
 # https://docs.streamlit.io/library/api-reference/widgets
 import sys
 sys.path.append("..")
@@ -64,17 +65,20 @@ stop_data = hist_data.where(hist_data['stop_id']==stop)
 fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
 
-print("get the stop max interval")
 
 select_stop_data = fd.select_stops_by_id(str(stop),begin_date,end_date)
 print(select_stop_data)
-print('ndarray')
 select_stop_data = select_stop_data.to_numpy()
 
 max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
 for i  in range(1,len(select_stop_data)):
     current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    if(max_interval< current_interval):
+    ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
+    ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
+    
+    if(max_interval< current_interval and ignore_night):
         max_interval = current_interval
+max_interval = datetime.timedelta(seconds= max_interval)
 print(max_interval)
-st.write("l'attente maximal sur ce stop est de  %s seconds"%max_interval)
+
+st.write("l'attente maximal sur ce stop est de  %s."%max_interval)
