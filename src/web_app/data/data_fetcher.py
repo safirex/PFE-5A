@@ -2,7 +2,9 @@ import sys
 import pandas as pd
 import time
 import datetime
+from sqlalchemy import select
 sys.path.append("../..")
+
 import db.dbConnection as db
 from  files_format_enums import GTFSFilenames as tables
 from gtfs_parser import get_rt_column_names
@@ -86,13 +88,33 @@ def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.dat
     return res
 
 
-def select_nb_stop_per_hour_per_stop():
-    query = """ SELECT rt.stop_id, count(*)
-                from rt_stop_info rt
-                group by rt.stop_id,MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24)
-            """
+def select_attente_max_per_stop():
+    query = ''' SELECT  from rt_stop_info
+                group by stop_id
+    
+    '''
 
 
+
+def download_csv(begin, end) :
+    '''returns a zip file of 2 csv in binary format'''
+    test = {}
+    test[tables.rt_stop_info] = "where "+manage_time_limit(begin,end,'arrival_time',True)
+    test[tables.rt_trip_info] = "where "+manage_time_limit(begin,end,'timestamp',True)
+    res=[]
+    for table in test:
+        query = """ select * from %s %s """%(table.name,test[table])
+        df = pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
+        res.append(df)
+        
+        
+    # return res
+    
+def select_stops_by_id(id:str,begin,end):
+    when = manage_time_limit(begin,end,'departure_time',True)
+    where = manage_sql_optional_conditions([when,"stop_id = '%s'"%id])
+    query = "select * from %s %s"%(tables.rt_stop_info.name,where)    
+    return pd.DataFrame(engine.execute(query))
 
 
 
@@ -122,7 +144,10 @@ def manage_sql_optional_conditions(conditions:list,having=False):
     return res
 
 
-def manage_time_limit(begin:datetime.datetime,end:datetime.datetime,column:str,isTimestamp=False):
+def manage_time_limit(begin:datetime.datetime, end:datetime.datetime, column:str, isTimestamp=False):
+    '''
+    isTimestamp : correspond to the format of the column refered to in the db 
+    '''
     if(not isTimestamp):
         string = " %s > %s and %s < %s" %(column,str(begin),column,str(end))
     else:
