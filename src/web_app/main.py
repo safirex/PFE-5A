@@ -23,7 +23,7 @@ def fetch_data(line_limit,begin_date,end_date):
     data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit, begin_date, end_date)
     data['scheduled_stops']=fd.select_scheduled_stops(line_limit)
     data['rt_stops'] = fd.select_rt_stops(line_limit, begin_date, end_date)
-    data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit)
+    data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit,begin_date,end_date)
 
 
 col1, col2 = st.columns(2)
@@ -75,12 +75,10 @@ print("work hours = ",work_hours)
 max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
 for i  in range(1,len(select_stop_data)):
     current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    # ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
-    # ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
     current_hour = math.floor(select_stop_data[i,5]/3600)
-    
+    not_first_hour_of_day = (current_hour-1)%24 in work_hours
     # check the interval isn't because it's night
-    if(max_interval< current_interval and (current_hour-1)%24 in work_hours ):   #and ignore_night):
+    if(max_interval< current_interval and not_first_hour_of_day ): 
         max_interval = current_interval
 max_interval = datetime.timedelta(seconds= max_interval)
 print(max_interval)
@@ -103,4 +101,27 @@ for i  in range(1,len(select_stop_data)):
         max_interval = current_interval
 max_interval = datetime.timedelta(seconds= max_interval)
 print(max_interval)
-st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_interval)
+st.write("l'attente maximal (naive) entre 2 vehicules sur ce stop est de  %s."%max_interval)
+
+
+
+
+# nb arrets par heure
+
+stops_per_id :pd.DataFrame= data['stops_per_hour'][['stop_id','arrival_hour','COUNT(*)']]
+stops_per_id.columns = ['stop_id','arrival_hour','nb_stops']
+time_duration = (pd.Timestamp(end_date) - pd.Timestamp(begin_date)).days
+# nb_stops = stops_per_id['nb_stops'] 
+
+# average stops = count / nb_jours (ouverts)
+
+# pr/int("date " , begin_date,  )
+# average_nb_stops = nb_stops / time_duration
+# average_nb_stops.columns = ['nb moyen de stops']
+# # stops_per_id:pd.DataFrame = data['stops_per_hour']
+# # stops_per_id.join(average_nb_stops)
+
+stops_per_id['nb moyen de stops'] = stops_per_id.apply(lambda row: row.nb_stops /time_duration , axis = 1)
+
+st.dataframe(stops_per_id)
+print(stops_per_id.columns)

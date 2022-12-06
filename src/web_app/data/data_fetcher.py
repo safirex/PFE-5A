@@ -27,13 +27,14 @@ def select_rt_stops(line_limit,begin,end):
     modify_rt_data_timestamp(res,'departure_time')
     return res
 
-def select_nb_stops_per_hour(line_limit):
+def select_nb_stops_per_hour(line_limit,begin_date,end_date):
     # SELECT stop_id,AVG(arrival_delay),round(AVG(departure_delay)),cast(floor(arrival_time/3600) as INTEGER )%24 as hourly, COUNT(*) FROM rt_stop_info GROUP BY stop_id, hourly LIMIT 1000;
     table = tables.rt_stop_info.name
     limit = manage_line_limit(line_limit)
-    columns = 'stop_id,AVG(arrival_delay),round(AVG(departure_delay)),MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24) as arrival_hour, COUNT(*)'
+    when = manage_time_limit(begin_date,end_date,'arrival_time',True)
+    columns = 'stop_id,AVG(arrival_delay),round(AVG(departure_delay)),MOD(cast(floor(arrival_time/3600) as INTEGER ) , 24) as arrival_hour,COUNT(*)'
     group = "group by stop_id, arrival_hour"
-    query = '''select %s from %s %s %s'''%(columns,table,group,limit)
+    query = '''select %s from %s where %s %s %s'''%(columns,table,when,group,limit)
     columns_name = columns.split(',')
     columns_name[-2] = 'arrival_hour'
     columns_name.pop(-3) 
@@ -86,11 +87,23 @@ def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.dat
     return res
 
 
-def select_attente_max_per_stop():
-    query = ''' SELECT  from rt_stop_info
-                group by stop_id
-    
-    '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
