@@ -24,7 +24,7 @@ def fetch_data(line_limit,begin_date,end_date):
     data['scheduled_stops']=fd.select_scheduled_stops(line_limit)
     data['rt_stops'] = fd.select_rt_stops(line_limit, begin_date, end_date)
     data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit,begin_date,end_date)
-
+    data['stop_names'] = data['stops_average_delay'][['nom de stop','stop id']]
 
 col1, col2 = st.columns(2)
 with col1:
@@ -48,7 +48,6 @@ sql_display = st.selectbox("display request based on ",('stop ids', 'station nam
 fetch_data(line_limit,begin_date,end_date)
 
 engine = db.get_engine()
-
 
 st.dataframe(data['stops_average_delay'])
 
@@ -111,17 +110,14 @@ st.write("l'attente maximal (naive) entre 2 vehicules sur ce stop est de  %s."%m
 stops_per_id :pd.DataFrame= data['stops_per_hour'][['stop_id','arrival_hour','COUNT(*)']]
 stops_per_id.columns = ['stop_id','arrival_hour','nb_stops']
 time_duration = (pd.Timestamp(end_date) - pd.Timestamp(begin_date)).days
-# nb_stops = stops_per_id['nb_stops'] 
+stop_names:pd.DataFrame = data['stop_names']
+stop_names.columns = ['nom de stop','stop_id']
 
-# average stops = count / nb_jours (ouverts)
-
-# pr/int("date " , begin_date,  )
-# average_nb_stops = nb_stops / time_duration
-# average_nb_stops.columns = ['nb moyen de stops']
-# # stops_per_id:pd.DataFrame = data['stops_per_hour']
-# # stops_per_id.join(average_nb_stops)
 
 stops_per_id['nb moyen de stops'] = stops_per_id.apply(lambda row: row.nb_stops /time_duration , axis = 1)
+stops_per_id= stops_per_id.set_index('stop_id').join(stop_names.set_index('stop_id'))
+stops_per_id = stops_per_id.iloc[:,[3,0,1,2]]
 
+print(stops_per_id.head)
 st.dataframe(stops_per_id)
 print(stops_per_id.columns)
