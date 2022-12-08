@@ -39,11 +39,22 @@ col1, col2 = st.columns(2)
 with col1:
     st.write("data from ", begin_date," to ",end_date)
 with col2:
-    pass
-    # st.download_button("download csv from db data",help='dowload date from %s to %s'%(begin_date,end_date), data=fd.download_csv(begin_date,end_date))
+    [csv1,csv2] = fd.download_csv(begin_date,end_date)
+    
+    st.download_button("download csv of rt trips",
+                        help='dowload date from %s to %s'%(begin_date,end_date), 
+                        data=csv1,
+                        mime="text/csv",
+                        key='download-trips'
+                    )
+    st.download_button("download csv of rt stops",
+                        help='dowload date from %s to %s'%(begin_date,end_date), 
+                        data=csv2,
+                        mime="text/csv",
+                        key='download-stops'
+                    )
 line_limit = st.number_input("db line limit (0 = whole table)",value=1000,min_value=0,max_value=None)
 sql_display = st.selectbox("display request based on ",('stop ids', 'station names'))
-
 
 fetch_data(line_limit,begin_date,end_date)
 

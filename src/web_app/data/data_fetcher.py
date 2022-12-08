@@ -108,7 +108,7 @@ def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.dat
 
 
 def download_csv(begin, end) :
-    '''returns a zip file of 2 csv in binary format'''
+    '''returns a zip file of 2 csv in binary format'''   
     test = {}
     test[tables.rt_stop_info] = "where "+manage_time_limit(begin,end,'arrival_time',True)
     test[tables.rt_trip_info] = "where "+manage_time_limit(begin,end,'timestamp',True)
@@ -116,10 +116,9 @@ def download_csv(begin, end) :
     for table in test:
         query = """ select * from %s %s """%(table.name,test[table])
         df = pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
-        res.append(df)
+        res.append(df.to_csv(index=False).encode('utf-8'))
         
-        
-    # return res
+    return [csv for csv in res]
     
 def select_stops_by_id(id:str,begin,end, order_by_timestamp = False):
     when = manage_time_limit(begin,end,'departure_time',True)
