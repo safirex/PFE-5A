@@ -19,12 +19,13 @@ def fetch_data(line_limit,begin_date,end_date):
     # if(datetime.date.today()==end_date):
     #     # because end_date is a date without hour format
     #     end_date = datetime.datetime.now()
-    
+    data['stops'] = fd.select_stop_data()
+    data['stop_names'] =data['stops'][['stop_id','stop_name']]
+    print(data['stop_names'])
     data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit, begin_date, end_date)
     data['scheduled_stops']=fd.select_scheduled_stops(line_limit)
     data['rt_stops'] = fd.select_rt_stops(line_limit, begin_date, end_date)
     data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit,begin_date,end_date)
-    data['stop_names'] = data['stops_average_delay'][['nom de stop','stop id']]
 
 col1, col2 = st.columns(2)
 with col1:
@@ -72,7 +73,25 @@ st.write("retard moyen en seconde du réseau dijonnais au fil de la journée ")
 fig = px.histogram(hist_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
 
-stop =st.selectbox('stop id to observe',np.unique(hist_data['stop_id']))
+
+'''# stops par heure'''
+
+
+
+# selection id et format graph en fonction
+stop_labels:pd.DataFrame = data['stop_names'][['stop_name','stop_id']]
+stop_labels = data['stop_names'][['stop_name','stop_id']]
+col1,col2 = st.columns(2)
+
+with col1:
+    stop_label =st.selectbox('stop name to observe',np.unique(stop_labels['stop_name']))
+    filter = stop_labels['stop_name'] == stop_label
+    stop_line = stop_labels.where(filter).dropna()   
+    
+with col2:
+    stop = st.selectbox('stop id to observe',stop_line['stop_id'])
+    
+st.write("selected  = ",stop_label,stop)
 stop_data = hist_data.where(hist_data['stop_id']==stop)
 fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)

@@ -86,7 +86,11 @@ def select_rt_scheduled2(line_limit:int,begin:datetime.datetime,end:datetime.dat
     res['avg departure delay']  =res['avg departure delay'].astype(int)
     return res
 
-
+def select_stop_data():
+    query = "select * from " + tables.stops.name
+    columns = ['stop_id','stop_code','stop_name', 'latitude','longitude','wheelchair boarding']
+    return pd.DataFrame(engine.execute(query),columns=columns)
+                        
 
 
 
