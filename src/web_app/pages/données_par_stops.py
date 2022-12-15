@@ -93,27 +93,6 @@ print(max_interval)
 # st.write("work hours %s"%work_hours)
 st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_interval)
 
-
-
-
-
-select_stop_data = select_stop_data_r.to_numpy()
-max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
-for i  in range(1,len(select_stop_data)):
-    current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    # ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
-    # ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
-    
-    # check the interval isn't because it's night
-    if(max_interval< current_interval  ):   #and ignore_night):
-        max_interval = current_interval
-max_interval = datetime.timedelta(seconds= max_interval)
-print(max_interval)
-st.write("l'attente maximal (naive) entre 2 vehicules sur ce stop est de  %s."%max_interval)
-
-
-
-
 # nb arrets par heure
 
 stops_per_id :pd.DataFrame= data['stops_per_hour'][['stop_id','arrival_hour','COUNT(*)']]
