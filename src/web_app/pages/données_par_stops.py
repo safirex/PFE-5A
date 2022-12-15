@@ -22,9 +22,6 @@ def fetch_data(line_limit,begin_date,end_date):
     data['stops'] = fd.select_stop_data()
     data['stop_names'] =data['stops'][['stop_id','stop_name']]
     print(data['stop_names'])
-    data['stops_average_delay'] = fd.select_rt_scheduled2(line_limit, begin_date, end_date)
-    data['scheduled_stops']=fd.select_scheduled_stops(line_limit)
-    data['rt_stops'] = fd.select_rt_stops(line_limit, begin_date, end_date)
     data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit,begin_date,end_date)
 
 
@@ -54,13 +51,9 @@ hist_data:pd.DataFrame = tmp[['stop_id','AVG(arrival_delay)','arrival_hour']]
 
 stop_labels:pd.DataFrame = data['stop_names'][['stop_name','stop_id']]
 stop_labels = data['stop_names'][['stop_name','stop_id']]
+
+
 col1,col2 = st.columns(2)
-
-
-
-
-
-
 with col1:
     stop_label =st.selectbox('stop name to observe',np.unique(stop_labels['stop_name']))
     filter = stop_labels['stop_name'] == stop_label
@@ -69,7 +62,15 @@ with col1:
 with col2:
     stop = st.selectbox('stop id to observe',stop_line['stop_id'])
     stop_data = hist_data.where(hist_data['stop_id']==stop)
-    
+
+col1,col2 = st.columns(2)
+with col1:
+    limitation_boolean  = st.checkbox('limit days')
+with col2:
+    days = st.selectbox('days to parse',['week days','weekend'],disabled=not limitation_boolean)
+
+
+
 st.write("données sur arret ",stop_label,stop, " du ", begin_date," au ",end_date)
 '### délais moyen des véhicules par rapport aux horaires prévus selon les horaires de la journée'
 fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
