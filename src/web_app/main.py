@@ -55,7 +55,7 @@ with col2:
                         key='download-stops'
                     )
 line_limit = st.number_input("db line limit (0 = whole table)",value=1000,min_value=0,max_value=None)
-sql_display = st.selectbox("display request based on ",('stop ids', 'station names'))
+# sql_display = st.selectbox("display request based on ",('stop ids', 'station names'))
 
 fetch_data(line_limit,begin_date,end_date)
 
@@ -69,85 +69,13 @@ tmp = data['stops_per_hour']
 hist_data:pd.DataFrame = tmp[['stop_id','AVG(arrival_delay)','arrival_hour']]
 
 # st.dataframe(hist_data)
-st.write("retard moyen en seconde du réseau dijonnais au fil de la journée ")
+st.write("### retard moyen en seconde du réseau dijonnais au fil de la journée ")
 fig = px.histogram(hist_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
 st.plotly_chart(fig)
 
 
-'''# stops par heure'''
-
-
-
-# selection id et format graph en fonction
-stop_labels:pd.DataFrame = data['stop_names'][['stop_name','stop_id']]
-stop_labels = data['stop_names'][['stop_name','stop_id']]
-col1,col2 = st.columns(2)
-
-with col1:
-    stop_label =st.selectbox('stop name to observe',np.unique(stop_labels['stop_name']))
-    filter = stop_labels['stop_name'] == stop_label
-    stop_line = stop_labels.where(filter).dropna()   
-    
-with col2:
-    stop = st.selectbox('stop id to observe',stop_line['stop_id'])
-    
-st.write("selected  = ",stop_label,stop)
-stop_data = hist_data.where(hist_data['stop_id']==stop)
-fig = px.histogram(stop_data, x='arrival_hour',y='AVG(arrival_delay)',histfunc='avg')
-st.plotly_chart(fig)
-
-
-select_stop_data_r = fd.select_stops_by_id(str(stop),begin_date,end_date,True)
-select_stop_data = select_stop_data_r.to_numpy()
-work_hours = get_working_hours_stop(select_stop_data[:,5])
-print("work hours = ",work_hours)
-max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
-for i  in range(1,len(select_stop_data)):
-    current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    current_hour = math.floor(select_stop_data[i,5]/3600)
-    not_first_hour_of_day = (current_hour-1)%24 in work_hours
-    # check the interval isn't because it's night
-    if(max_interval< current_interval and not_first_hour_of_day ): 
-        max_interval = current_interval
-max_interval = datetime.timedelta(seconds= max_interval)
-print(max_interval)
-st.write("work hours %s"%work_hours)
-st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_interval)
 
 
 
 
 
-select_stop_data = select_stop_data_r.to_numpy()
-max_interval = select_stop_data[1,5] - select_stop_data[0,5] 
-for i  in range(1,len(select_stop_data)):
-    current_interval = select_stop_data[i,5] - select_stop_data[i-1,5]
-    # ignore_night = math.floor(select_stop_data[i,5]/3600)>=5 and math.floor(select_stop_data[i-1,5]/3600)<3
-    # ignore_db_holes = math.floor(select_stop_data[i,5]/(3600*24)) - math.floor(select_stop_data[i-1,5]/(3600*24)) <1
-    
-    # check the interval isn't because it's night
-    if(max_interval< current_interval  ):   #and ignore_night):
-        max_interval = current_interval
-max_interval = datetime.timedelta(seconds= max_interval)
-print(max_interval)
-st.write("l'attente maximal (naive) entre 2 vehicules sur ce stop est de  %s."%max_interval)
-
-
-
-
-# nb arrets par heure
-
-stops_per_id :pd.DataFrame= data['stops_per_hour'][['stop_id','arrival_hour','COUNT(*)']]
-stops_per_id.columns = ['stop_id','arrival_hour','nb_stops']
-time_duration = (pd.Timestamp(end_date) - pd.Timestamp(begin_date)).days
-stop_names:pd.DataFrame = data['stop_names']
-stop_names.columns = ['nom de stop','stop_id']
-
-
-stops_per_id['nb moyen de stops'] = stops_per_id.apply(lambda row: row.nb_stops /time_duration , axis = 1)
-stops_per_id= stops_per_id.set_index('stop_id').join(stop_names.set_index('stop_id'))
-stops_per_id = stops_per_id.iloc[:,[3,0,1,2]]
-
-print(stops_per_id.head)
-st.dataframe(stops_per_id)
-print(stops_per_id.columns)
