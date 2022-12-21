@@ -60,6 +60,7 @@ def get_stop_column_names():
 column_dict = {}
 column_dict[GTFSFilenames.rt_stop_info] = ['trip_id']+get_stop_column_names()
 column_dict[GTFSFilenames.rt_trip_info] = get_entity_column_names()[:-1]
+column_dict[GTFSFilenames.raw_rt_data] = ['id']+get_entity_column_names()[:-1] + get_stop_column_names()
 # column_dict[GTFSFilenames.stop_times] = ['trip_id','arrival_time','departure_time','stop_id','stop_sequence',' pickup_type','drop_off_type']
 def get_rt_column_names(table:GTFSFilenames):
     return column_dict[table]

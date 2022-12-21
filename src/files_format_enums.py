@@ -14,3 +14,4 @@ class GTFSFilenames(Enum):
     RT = 8
     rt_stop_info = 9
     rt_trip_info = 10
+    raw_rt_data = 11

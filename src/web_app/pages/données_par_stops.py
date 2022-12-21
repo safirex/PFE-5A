@@ -34,7 +34,7 @@ with col2:
     end_date = st.date_input(
         "end date",
         datetime.datetime.now())
-line_limit = st.number_input("db line limit (0 = whole table)",value=1000,min_value=0,max_value=None)
+line_limit = 0
 
 
 
@@ -63,11 +63,8 @@ with col2:
     stop = st.selectbox('stop id to observe',stop_line['stop_id'])
     stop_data = hist_data.where(hist_data['stop_id']==stop)
 
-col1,col2 = st.columns(2)
-with col1:
-    limitation_boolean  = st.checkbox('limit days')
-with col2:
-    days = st.selectbox('days to parse',['week days','weekend'],disabled=not limitation_boolean)
+
+# days = st.selectbox('journées observées',['semaine entière','fin de semaine'])
 
 
 
@@ -98,17 +95,17 @@ st.write("l'attente maximal entre 2 vehicules sur ce stop est de  %s."%max_inter
 
 stops_per_id :pd.DataFrame= data['stops_per_hour'][['stop_id','arrival_hour','COUNT(*)']]
 stops_per_id.columns = ['stop_id','arrival_hour','nb_stops']
+stops_per_id =stops_per_id.where(stops_per_id['stop_id']==stop).dropna()
 time_duration = (pd.Timestamp(end_date) - pd.Timestamp(begin_date)).days
 stop_names:pd.DataFrame = data['stop_names']
 stop_names.columns = ['nom de stop','stop_id']
-st.dataframe(stop_names)
+# st.dataframe(stop_names)
 
-
+'### nombre moyen de vehicle par heure sur une mois'
 stops_per_id['nb moyen de stops'] = stops_per_id.apply(lambda row: row.nb_stops /time_duration , axis = 1)
 # st.dataframe(stops_per_id)
 
-stops_per_id = stops_per_id.set_index('stop_id').join(stop_names.set_index('stop_id'))
-print(stops_per_id)
+# stops_per_id = stops_per_id.set_index('stop_id').join(stop_names.set_index('stop_id'))
 # stops_per_id = stops_per_id.iloc[:,[3,0,1,2]]   # change column order
 
 st.dataframe(stops_per_id)

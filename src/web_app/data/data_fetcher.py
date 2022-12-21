@@ -4,6 +4,7 @@ import time
 import datetime
 from sqlalchemy import select
 sys.path.append("../..")
+sys.path.append("../../..")
 
 import db.dbConnection as db
 from  files_format_enums import GTFSFilenames as tables
@@ -111,19 +112,33 @@ def select_stop_data():
 
 
 
-def download_csv(begin, end) :
-    '''returns a zip file of 2 csv in binary format'''   
-    test = {}
-    test[tables.rt_stop_info] = "where "+manage_time_limit(begin,end,'arrival_time',True)
-    test[tables.rt_trip_info] = "where "+manage_time_limit(begin,end,'timestamp',True)
-    res=[]
-    for table in test:
-        query = """ select * from %s %s """%(table.name,test[table])
-        df = pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
-        res.append(df.to_csv(index=False).encode('utf-8'))
+# def download_csv(begin, end) :
+#     '''returns csv of a bdd table'''   
+
+#     test = {}
+#     test[tables.rt_stop_info]   = "where "+manage_time_limit(begin,end,'arrival_time',True)
+#     test[tables.rt_trip_info]   = "where "+manage_time_limit(begin,end,'timestamp',True)
+#     test[tables.raw_rt_data]    = "where "+manage_time_limit(begin,end,'timestamp',True)
+#     res=[]
+#     for table in test:
+#         query = """ select * from %s %s """%(table.name,test[table])
+#         df = pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
+#         res.append(df.to_csv(index=False).encode('utf-8'))
         
-    return [csv for csv in res]
+#     return [csv for csv in res]
     
+def download_csv(table:tables,begin, end) :
+    '''returns csv of a bdd table'''   
+    
+    test = {}
+    test[tables.rt_stop_info]   = "where "+manage_time_limit(begin,end,'arrival_time',True)
+    test[tables.rt_trip_info]   = "where "+manage_time_limit(begin,end,'timestamp',True)
+    test[tables.raw_rt_data]    = "where "+manage_time_limit(begin,end,'timestamp',True)
+    query = """ select * from %s %s """%(table.name,test[table])
+    df = pd.DataFrame(engine.execute(query),columns=get_rt_column_names(table))
+    res = df.to_csv(index=False).encode('utf-8')
+    return res
+        
 def select_stops_by_id(id:str,begin,end, order_by_timestamp = False):
     when = manage_time_limit(begin,end,'departure_time',True)
     _,who = name_or_id(id,'id')
@@ -146,6 +161,7 @@ def name_or_id(name_id:str, colum= 'name' or 'id') :
         return "rt inner join %s sc on rt.stop_id = sc.stop_id"%tables.stops.name, \
                     "stop_name like %s"%name_id
     raise BaseException("bad arguments")
+
 def manage_line_limit(limit:int):
     limit_string =""
     if(limit!=0):
