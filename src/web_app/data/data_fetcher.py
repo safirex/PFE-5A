@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import time
+import streamlit as st
 import datetime
 from sqlalchemy import select
 sys.path.append("../..")
@@ -111,7 +112,6 @@ def select_stop_data():
 
 
 
-
 # def download_csv(begin, end) :
 #     '''returns csv of a bdd table'''   
 
@@ -126,7 +126,7 @@ def select_stop_data():
 #         res.append(df.to_csv(index=False).encode('utf-8'))
         
 #     return [csv for csv in res]
-    
+@st.cache
 def download_csv(table:tables,begin, end) :
     '''returns csv of a bdd table'''   
     
