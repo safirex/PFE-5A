@@ -22,7 +22,7 @@ def fetch_data(line_limit,begin_date,end_date):
     data['stops'] = fd.select_stop_data()
     data['stop_names'] =data['stops'][['stop_id','stop_name']]
     print(data['stop_names'])
-    data['stops_per_hour'] = fd.select_nb_stops_per_hour(line_limit,begin_date,end_date)
+    data['stops_per_hour'] = fd.select_nb_stops_per_hour(0,begin_date,end_date)
 
 
 col1, col2 = st.columns(2)
