@@ -15,7 +15,7 @@ import gtfs_parser
 
 def save_rt_data():
     """ save the gtfs-rt data to a txt file """
-    feed = fetch_rt_data
+    feed = fetch_rt_data()
     liste = []
     for entity in feed.entity:
         if entity.HasField('trip_update'):

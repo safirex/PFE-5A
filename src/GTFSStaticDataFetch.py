@@ -40,9 +40,8 @@ def save_file_content_to_db(filename:GTFSFilenames):
     content = read(filename)
     df = pd.DataFrame(content[1:],columns=content[0])
     print(df)
-    
     dtypes = get_db_table_dtype(filename)
-    pkeys= get_db_table_pkeys(filename)
+    pkeys = get_db_table_pkeys(filename)
     add_Data(dataframe=df,table_name=filename.name,dtype = dtypes)  
     alter_table_add_pk(filename.name,pkeys)
 

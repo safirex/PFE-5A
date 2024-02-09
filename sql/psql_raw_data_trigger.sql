@@ -10,9 +10,9 @@ CREATE or REPLACE FUNCTION insert_trigger() RETURNS trigger AS $$
             INSERT INTO rt_stop_info(trip_id,stop_id,arrival_delay,arrival_time,departure_delay,departure_time,scheduled_relationship)
             VALUES ( new.trip_id,new.stop_id,new.arrival_delay,new.arrival_time,new.departure_delay,new.departure_time,NEW.scheduled_relationship);
         ELSE
-            UPDATE TABLE rt_stop_info
+            UPDATE rt_stop_info
             SET arrival_delay = new.arrival_delay ,departure_delay = new.departure_delay
-            WHERE trip_id = NEW.trip_id AND stop_id = NEW.stop_id
+            WHERE trip_id = NEW.trip_id AND stop_id = NEW.stop_id;
         END if;
         RETURN NEW;
     END;

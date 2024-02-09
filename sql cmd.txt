@@ -1,0 +1,1 @@
+select count(*),extract(hour from to_timestamp(timestamp))  from raw_rt_data group by extract(hour from to_timestamp(timestamp)) order by 2;
